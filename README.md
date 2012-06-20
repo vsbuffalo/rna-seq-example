@@ -1,4 +1,57 @@
-rna-seq-example
-===============
+# An Example Differential Expression Analysis Using RNA-Seq Data
 
-An analysis of Arabidopsis RNA-seq data (hy5 mutant and wt, two replicates each; SRA accession SRX029582)
+This is an example analysis of RNA-seq data using open source tools R
+and Bioconductor. It starts with raw reads downloaded from the Short
+Read Archive (SRA), does quality assessment and improvement, mapping,
+and analysis. 
+
+## Data
+
+The data for this comes from Zhang et al., 2011, *Genome-wide mapping
+of the HY5-mediated genenetworks in Arabidopsis that involve both
+transcriptional and post-transcriptional regulation*
+(http://onlinelibrary.wiley.com/doi/10.1111/j.1365-313X.2010.04426.x/full). It
+is composed of two Arabidopsis thaliana ecotype Col-0 sets, one hy5
+mutant and one wild type. The SRA accession is SRX029582.
+
+ - `GEO:GSM613465`: wild type samples
+   - `SRR070570`: replicate 1
+   - `SRR070571`: replicate 2
+ - `GEO:GSM613466`: hy5 mutant samples
+   - `SRR070572`: replicate 1
+   - `SRR070573`: replicate 2
+ 
+These were sequenced on an Illumina Genome Analyzer after oligo(dT)
+selection and random hexamer priming.
+
+### Downloading
+
+Read data was acquired from the SRA via `wget`, and checked with:
+
+    cd data/raw-reads/
+    md5sum -c *sra.md5
+
+The TAIR10 Arabidopsis Genome was downloaded with: 
+
+    wget -nd ftp://ftp.arabidopsis.org/home/tair/Sequences/whole_chromosomes/*fas
+
+`-nd` tells `wget` not to mirror the directory structure.
+
+### FASTQ Extraction
+
+FASTQ data was extracted with NCBI's SRA Toolkit's `fastq-dump`, used
+with `xargs` and `find` to run this in parallel:
+
+    find . -name "*sra" | xargs -n1 -P4 /share/apps/sratoolkit/fastq-dump
+
+### Process a Genome for GSNAP
+
+    cd data/athaliana-genome
+    gmap_build -d athaliana10 -C *.fas
+    
+The `-C` option tries to extract chromosome information from the FASTA
+header.
+
+
+### FASTQ Sequence Quality Information
+

@@ -15,7 +15,7 @@ before/after quality improvement software diagnostics.
 
 
 ```r
-opts_chunk$set(fig.width = 7, fig.height = 7)
+opts_chunk$set(fig.width = 7, fig.height = 7, cache = TRUE)
 opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ```
 
@@ -27,14 +27,7 @@ opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/maste
 
 
 ```r
-library(mclapply)
-```
-
-```
-## Error: there is no package called 'mclapply'
-```
-
-```r
+library(multicore)
 library(qrqc)
 
 options(mc.cores = 4)
@@ -64,12 +57,32 @@ raw.fastq.summaries <- mclapply(raw.fastq.files, readSeqFile)
 
 ```r
 
-baseQualPlot(raw.fastq.summaries)
+qualPlot(raw.fastq.summaries)
 ```
 
 ```
-## Error: could not find function "baseQualPlot"
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
 ```
 
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
 
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+![plot of chunk raw-base-quality](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-base-quality.png) 
 

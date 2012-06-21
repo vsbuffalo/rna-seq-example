@@ -76,7 +76,7 @@ provides a look how many reads were removed, the distribution of the
 adapter contaminants.
 
 
-```{r read-in-trimming-data}
+```{r read-trimmed-data}
 
 d <- read.table("data/scythe-data.txt", sep="\t", header=TRUE)
 

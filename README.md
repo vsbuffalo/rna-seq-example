@@ -69,3 +69,15 @@ from the raw reads:
 
 `sickle` is a tool for trimming low-quality bases off of the 5'-end
 and 3'-end of reads.
+
+## Aligning Reads with GSNAP
+
+I use a script (`map-gsnap.sh`) to process each alignment file. The
+purpose of using the script is that I can use it with `xargs`. Because
+`gsnap` returns results to standard out, we need to wrap the call in a
+script to allow this to be parallelizable.
+
+    find data/improved-reads/ -name "*final.fastq" | xargs -n1 -P4 bash map-gsnap.sh
+
+I am using `-N1` with `gsnap`, which allows for novel
+splicing. `gsnap` also allows for known splicing junctions to be used.

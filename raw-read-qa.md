@@ -70,11 +70,15 @@ raw.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata",
 
 ```r
 
-qualPlot(raw.fastq.summaries)
+# omit random FASTQ file
+qualPlot(raw.fastq.summaries[[-length(raw.fastq.files)]])
 ```
 
 ```
-## Error: All items in list must have class FASTQSummary.
+## Error: error in evaluating the argument 'x' in selecting a method for
+## function 'qualPlot': Error in
+## raw.fastq.summaries[[-length(raw.fastq.files)]] : attempt to select more
+## than one element
 ```
 
 
@@ -246,11 +250,14 @@ processed.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata",
 
 ```r
 
-qualPlot(processed.fastq.summaries)
+qualPlot(processed.fastq.summaries[[-length(raw.fastq.files)]])
 ```
 
 ```
-## Error: All items in list must have class FASTQSummary.
+## Error: error in evaluating the argument 'x' in selecting a method for
+## function 'qualPlot': Error in
+## processed.fastq.summaries[[-length(raw.fastq.files)]] : attempt to select
+## more than one element
 ```
 
 

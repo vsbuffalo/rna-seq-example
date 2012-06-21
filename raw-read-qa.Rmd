@@ -46,7 +46,8 @@ raw.fastq.summaries[["random"]] <- readSeqFile(system.file('extdata', 'random.fa
 
 ```{r raw-base-quality}
 
-qualPlot(raw.fastq.summaries)
+# omit random FASTQ file
+qualPlot(raw.fastq.summaries[[-length(raw.fastq.files)]])
 
 ````
 
@@ -162,7 +163,7 @@ processed.fastq.summaries[["random"]] <- readSeqFile(system.file('extdata', 'ran
 
 ```{r processed-base-quality}
 
-qualPlot(processed.fastq.summaries)
+qualPlot(processed.fastq.summaries[[-length(raw.fastq.files)]])
 
 ````
 

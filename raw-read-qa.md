@@ -15,7 +15,7 @@ before/after quality improvement software diagnostics.
 
 
 ```r
-opts_chunk$set(fig.width = 7, fig.height = 7, cache = TRUE)
+opts_chunk$set(fig.width = 7, fig.height = 7, cache = FALSE)
 opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ```
 
@@ -69,30 +69,10 @@ qualPlot(raw.fastq.summaries)
 ```
 
 ```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
+## Error: All items in list must have class FASTQSummary.
 ```
 
-```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
-```
 
-```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
-```
-
-```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
-```
-
-![plot of chunk raw-base-quality](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-base-quality.png) 
 
 
 ### Base Frequency
@@ -104,13 +84,7 @@ qualPlot(raw.fastq.summaries)
 basePlot(raw.fastq.summaries)
 ```
 
-```
-## Error: error in evaluating the argument 'x' in selecting a method for
-## function 'basePlot': Error in parse(text = str_c("alist(", params, ")")) :
-## <text>:1:13: unexpected 'in' 1: alist( read-in ^
-```
-
-
+![plot of chunk raw-base-frequency](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-base-frequency.png) 
 
 
 ### K-mer Contaminant Plots
@@ -283,7 +257,7 @@ qualPlot(processed.fastq.summaries)
 ```
 
 ```
-## Error: A list pased into qualPlot must have named elements.
+## Error: All items in list must have class FASTQSummary.
 ```
 
 
@@ -298,11 +272,7 @@ qualPlot(processed.fastq.summaries)
 basePlot(processed.fastq.summaries)
 ```
 
-```
-## Error: list 'x' must have named elements.
-```
-
-
+![plot of chunk processed-base-frequency](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-base-frequency.png) 
 
 
 ### K-mer Contaminant Plots
@@ -315,10 +285,22 @@ kmerKLPlot(processed.fastq.summaries)
 ```
 
 ```
-## Error: list 'x' must have named elements.
+## Warning: Stacking not well defined when ymin != 0
 ```
 
+```
+## Warning: Stacking not well defined when ymin != 0
+```
 
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+![plot of chunk processed-kmer-kl](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-kmer-kl.png) 
 
 
 ### Entropy Contaminant Plots
@@ -330,10 +312,6 @@ kmerKLPlot(processed.fastq.summaries)
 kmerEntropyPlot(processed.fastq.summaries)
 ```
 
-```
-## Error: list 'x' must have named elements.
-```
-
-
+![plot of chunk processed-entropy](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-entropy.png) 
 
 

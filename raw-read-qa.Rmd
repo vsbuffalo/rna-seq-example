@@ -13,7 +13,7 @@ generally are working well with a particular dataset.
 before/after quality improvement software diagnostics.
 
 ```{r setup}
-opts_chunk$set(fig.width=7, fig.height=7, cache=FALSE)
+opts_chunk$set(fig.width=7, fig.height=7, cache=TRUE)
 opts_knit$set(base.url="https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ````
 
@@ -34,7 +34,12 @@ options(mc.cores=4)
 
 raw.fastq.files <- list.files("data/raw-reads", pattern=".*\\.fastq", full.names=TRUE)
 names(raw.fastq.files) <- basename(raw.fastq.files)
+
 raw.fastq.summaries <- mclapply(raw.fastq.files, readSeqFile)
+
+# Add in random reads (for comparison). This also helps with scaling the y axis
+raw.fastq.summaries[["random"]] <- readSeqFile(system.file('extdata', 'random.fasta', package='qrqc'), type="fasta", hash.prop=1)
+
 ````
 
 ### Base Quality
@@ -145,7 +150,12 @@ p
 o
 processed.fastq.files <- list.files("data/improved-reads", pattern=".*final\\.fastq", full.names=TRUE)
 names(processed.fastq.files) <- basename(processed.fastq.files)
+
 processed.fastq.summaries <- mclapply(processed.fastq.files, readSeqFile)
+
+# Add in random reads (for comparison). This also helps with scaling the y axis
+processed.fastq.summaries[["random"]] <- readSeqFile(system.file('extdata', 'random.fasta', package='qrqc'), type="fasta", hash.prop=1)
+
 ````
 
 ### Base Quality

@@ -15,7 +15,7 @@ before/after quality improvement software diagnostics.
 
 
 ```r
-opts_chunk$set(fig.width = 7, fig.height = 7, cache = FALSE)
+opts_chunk$set(fig.width = 7, fig.height = 7, cache = TRUE)
 opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ```
 
@@ -47,7 +47,13 @@ options(mc.cores = 4)
 raw.fastq.files <- list.files("data/raw-reads", pattern = ".*\\.fastq", 
     full.names = TRUE)
 names(raw.fastq.files) <- basename(raw.fastq.files)
+
 raw.fastq.summaries <- mclapply(raw.fastq.files, readSeqFile)
+
+# Add in random reads (for comparison). This also helps with scaling the y
+# axis
+raw.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata", 
+    "random.fasta", package = "qrqc"), type = "fasta", hash.prop = 1)
 ```
 
 
@@ -98,7 +104,13 @@ qualPlot(raw.fastq.summaries)
 basePlot(raw.fastq.summaries)
 ```
 
-![plot of chunk raw-base-frequency](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-base-frequency.png) 
+```
+## Error: error in evaluating the argument 'x' in selecting a method for
+## function 'basePlot': Error in parse(text = str_c("alist(", params, ")")) :
+## <text>:1:13: unexpected 'in' 1: alist( read-in ^
+```
+
+
 
 
 ### K-mer Contaminant Plots
@@ -249,7 +261,13 @@ o
 processed.fastq.files <- list.files("data/improved-reads", pattern = ".*final\\.fastq", 
     full.names = TRUE)
 names(processed.fastq.files) <- basename(processed.fastq.files)
+
 processed.fastq.summaries <- mclapply(processed.fastq.files, readSeqFile)
+
+# Add in random reads (for comparison). This also helps with scaling the y
+# axis
+processed.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata", 
+    "random.fasta", package = "qrqc"), type = "fasta", hash.prop = 1)
 ```
 
 
@@ -265,30 +283,10 @@ qualPlot(processed.fastq.summaries)
 ```
 
 ```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
+## Error: A list pased into qualPlot must have named elements.
 ```
 
-```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
-```
 
-```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
-```
-
-```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using
-## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
-## smoothing method.
-```
-
-![plot of chunk processed-base-quality](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-base-quality.png) 
 
 
 ### Base Frequency
@@ -300,7 +298,11 @@ qualPlot(processed.fastq.summaries)
 basePlot(processed.fastq.summaries)
 ```
 
-![plot of chunk processed-base-frequency](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-base-frequency.png) 
+```
+## Error: list 'x' must have named elements.
+```
+
+
 
 
 ### K-mer Contaminant Plots
@@ -313,22 +315,10 @@ kmerKLPlot(processed.fastq.summaries)
 ```
 
 ```
-## Warning: Stacking not well defined when ymin != 0
+## Error: list 'x' must have named elements.
 ```
 
-```
-## Warning: Stacking not well defined when ymin != 0
-```
 
-```
-## Warning: Stacking not well defined when ymin != 0
-```
-
-```
-## Warning: Stacking not well defined when ymin != 0
-```
-
-![plot of chunk processed-kmer-kl](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-kmer-kl.png) 
 
 
 ### Entropy Contaminant Plots
@@ -340,6 +330,10 @@ kmerKLPlot(processed.fastq.summaries)
 kmerEntropyPlot(processed.fastq.summaries)
 ```
 
-![plot of chunk processed-entropy](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-entropy.png) 
+```
+## Error: list 'x' must have named elements.
+```
+
+
 
 

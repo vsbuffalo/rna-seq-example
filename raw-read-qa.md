@@ -71,14 +71,34 @@ raw.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata",
 ```r
 
 # omit random FASTQ file
-qualPlot(raw.fastq.summaries[-length(raw.fastq.files)])
+qualPlot(raw.fastq.summaries[-length(raw.fastq.summaries)])
 ```
 
 ```
-## Error: All items in list must have class FASTQSummary.
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
 ```
 
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
 
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+![plot of chunk raw-base-quality](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-base-quality.png) 
 
 
 ### Base Frequency
@@ -247,14 +267,34 @@ processed.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata",
 
 ```r
 
-qualPlot(processed.fastq.summaries[-length(raw.fastq.files)])
+qualPlot(processed.fastq.summaries[-length(processed.fastq.summaries)])
 ```
 
 ```
-## Error: All items in list must have class FASTQSummary.
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
 ```
 
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
 
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+![plot of chunk processed-base-quality](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-base-quality.png) 
 
 
 ### Base Frequency

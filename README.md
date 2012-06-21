@@ -53,5 +53,19 @@ The `-C` option tries to extract chromosome information from the FASTA
 header.
 
 
-### FASTQ Sequence Quality Information
+### Raw Sequence Quality Assessment
 
+First, we assess the quality with `qrqc`; see `raw-read-qa.Rmd`. 
+
+### Scythe
+
+`sycthe` is a 3'-end quality trimmer. Illumina adapters are removed
+from the raw reads:
+
+    find data/raw-reads/ -name "*.fastq" | xargs -n1 -I{} basename {} .fastq | xargs -n1 -P4 -I{} /share/apps/scythe/scythe -q sanger -a /share/apps/scythe/solexa_adapters.JNF.fa -o data/improved-reads/{}-trimmed.fastq data/raw-reads/{}.fastq
+
+
+### Sickle
+
+`sickle` is a tool for trimming low-quality bases off of the 5'-end
+and 3'-end of reads.

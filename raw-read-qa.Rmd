@@ -1,0 +1,79 @@
+# Raw Read Quality Assessment
+
+It's extremely important to do quality assessment and improvement
+steps before working with sequencing data. I highly recommend this one
+take an iteractive approach to this, consisting of diagnostics with
+`qrqc`, then improvement, then more diagnostics. This iterative
+approach has two benefits:
+
+1. It prevents the dangerous assumption that tools that work well
+generally are working well with a particular dataset. 
+
+2. Extremely pathological datasets stick out more in comparative
+before/after quality improvement software diagnostics.
+
+```{r setup}
+opts_chunk$set(fig.width=7, fig.height=7, cache=TRUE)
+opts_knit$set(base.url="https://github.com/vsbuffalo/rna-seq-example/raw/master/")
+````
+
+## Load Required Packages and Set Number of Cores to Use
+
+```{r load-packages}
+library(multicore)
+library(qrqc)
+
+options(mc.cores=4)
+````
+
+## Raw Quality Reports
+
+```{r summarize-raw-reads}
+
+raw.fastq.files <- list.files("data/raw-reads", pattern=".*\\.fastq", full.names=TRUE)
+names(raw.fastq.files) <- basename(raw.fastq.files)
+raw.fastq.summaries <- mclapply(raw.fastq.files, readSeqFile)
+````
+
+### Base Quality
+
+```{r raw-base-quality}
+
+qualPlot(raw.fastq.summaries)
+
+````
+
+### Base Frequency
+
+```{r raw-base-frequency}
+
+basePlot(raw.fastq.summaries)
+
+````
+
+### K-mer Contaminant Plots
+
+```{r raw-kmer-kl}
+
+kmerKLPlot(raw.fastq.summaries)
+
+````
+
+### Entropy Contaminant Plots
+
+```{r raw-entropy}
+
+kmerEntropyPlot(raw.fastq.summaries)
+
+````
+
+## Statistic of Processed Reads
+
+These statistics were gathered from `scythe` and `sickle` output. This
+provides a look how many reads were removed, the distribution of the
+adapter contaminants.
+
+
+```{r read-in-trimming-data}
+d <- read.table("data/scythe-data.txt", sep="\t", header=TRUE)
+````

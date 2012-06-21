@@ -15,7 +15,7 @@ before/after quality improvement software diagnostics.
 
 
 ```r
-opts_chunk$set(fig.width = 7, fig.height = 7, cache = FALSE)
+opts_chunk$set(fig.width = 7, fig.height = 7, cache = TRUE)
 opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ```
 
@@ -56,6 +56,11 @@ raw.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata",
     "random.fasta", package = "qrqc"), type = "fasta", hash.prop = 1)
 ```
 
+```
+## Warning: Some k-mer counts are infinite, meaning there was occurence of a
+## k-mer over the maximum double size.
+```
+
 
 
 
@@ -81,7 +86,7 @@ qualPlot(raw.fastq.summaries)
 
 ```r
 
-basePlot(raw.fastq.summaries)
+basePlot(raw.fastq.summaries, type = "proportion")
 ```
 
 ![plot of chunk raw-base-frequency](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-base-frequency.png) 
@@ -97,22 +102,10 @@ kmerKLPlot(raw.fastq.summaries)
 ```
 
 ```
-## Warning: Stacking not well defined when ymin != 0
+## Error: replacement has 1 rows, data has 0
 ```
 
-```
-## Warning: Stacking not well defined when ymin != 0
-```
 
-```
-## Warning: Stacking not well defined when ymin != 0
-```
-
-```
-## Warning: Stacking not well defined when ymin != 0
-```
-
-![plot of chunk raw-kmer-kl](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-kmer-kl.png) 
 
 
 ### Entropy Contaminant Plots
@@ -269,7 +262,7 @@ qualPlot(processed.fastq.summaries)
 
 ```r
 
-basePlot(processed.fastq.summaries)
+basePlot(processed.fastq.summaries, type = "proportion")
 ```
 
 ![plot of chunk processed-base-frequency](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-base-frequency.png) 
@@ -313,5 +306,18 @@ kmerEntropyPlot(processed.fastq.summaries)
 ```
 
 ![plot of chunk processed-entropy](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-entropy.png) 
+
+
+
+### Sequence Length Plot
+
+
+
+```r
+
+seqlenPlot(processed.fastq.summaries)
+```
+
+![plot of chunk processed-length](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/processed-length.png) 
 
 

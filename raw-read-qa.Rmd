@@ -13,7 +13,7 @@ generally are working well with a particular dataset.
 before/after quality improvement software diagnostics.
 
 ```{r setup}
-opts_chunk$set(fig.width=7, fig.height=7, cache=FALSE)
+opts_chunk$set(fig.width=7, fig.height=7, cache=TRUE)
 opts_knit$set(base.url="https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ````
 
@@ -54,7 +54,7 @@ qualPlot(raw.fastq.summaries)
 
 ```{r raw-base-frequency}
 
-basePlot(raw.fastq.summaries)
+basePlot(raw.fastq.summaries, type="proportion")
 
 ````
 
@@ -170,7 +170,7 @@ qualPlot(processed.fastq.summaries)
 
 ```{r processed-base-frequency}
 
-basePlot(processed.fastq.summaries)
+basePlot(processed.fastq.summaries, type="proportion")
 
 ````
 
@@ -187,6 +187,15 @@ kmerKLPlot(processed.fastq.summaries)
 ```{r processed-entropy}
 
 kmerEntropyPlot(processed.fastq.summaries)
+
+````
+
+
+### Sequence Length Plot
+
+```{r processed-length}
+
+seqlenPlot(processed.fastq.summaries)
 
 ````
 

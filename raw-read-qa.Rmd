@@ -143,7 +143,7 @@ p
 
 ```{r summarize-processed-reads}
 
-processed.fastq.files <- list.files("data/improved-reads", pattern=".*\\.fastq", full.names=TRUE)
+processed.fastq.files <- list.files("data/improved-reads", pattern=".*\\final.fastq", full.names=TRUE)
 names(processed.fastq.files) <- basename(processed.fastq.files)
 processed.fastq.summaries <- mclapply(processed.fastq.files, readSeqFile)
 ````

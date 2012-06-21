@@ -27,6 +27,8 @@ opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/maste
 
 
 ```r
+library(reshape)
+library(ggplot2)
 library(multicore)
 library(qrqc)
 
@@ -51,7 +53,7 @@ raw.fastq.summaries <- mclapply(raw.fastq.files, readSeqFile)
 
 
 
-### Base Quality Reports
+### Base Quality
 
 
 
@@ -85,4 +87,234 @@ qualPlot(raw.fastq.summaries)
 ```
 
 ![plot of chunk raw-base-quality](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-base-quality.png) 
+
+
+### Base Frequency
+
+
+
+```r
+
+basePlot(raw.fastq.summaries)
+```
+
+```
+## Error: error in evaluating the argument 'x' in selecting a method for
+## function 'basePlot': Error in parse(text = str_c("alist(", params, ")")) :
+## <text>:1:13: unexpected 'in' 1: alist( read-in ^
+```
+
+
+
+
+### K-mer Contaminant Plots
+
+
+
+```r
+
+kmerKLPlot(raw.fastq.summaries)
+```
+
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+![plot of chunk raw-kmer-kl](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-kmer-kl.png) 
+
+
+### Entropy Contaminant Plots
+
+
+
+```r
+
+kmerEntropyPlot(raw.fastq.summaries)
+```
+
+![plot of chunk raw-entropy](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-entropy.png) 
+
+
+## Statistic of Processed Reads (after Sickle and Scythe)
+
+These statistics were gathered from `scythe` and `sickle` output. This
+provides a look how many reads were removed, the distribution of the
+adapter contaminants.
+
+
+
+
+```r
+
+d <- read.table("data/scythe-data.txt", sep = "\t", header = TRUE)
+```
+
+
+
+
+This is a bit of a hodgepodge of a data file; it has original read
+counts, counts at each stage, and a character column of Scythe output
+indicating where the contaminants were found. First, we extract this
+last column. I plan on changing Scythe soon (and perhaps Sickle) so
+that output is nicer for downstream statistics.
+
+
+
+```r
+d.scythe <- local({
+    # look at just adapter columns, and the id (file) col
+    tmp <- d[, c(1, grep("adapter", colnames(d))), ]
+    
+    # split out and convert the values to numeric
+    tmp.a1 <- lapply(strsplit(as.character(tmp[, 2]), ", "), as.numeric)
+    tmp.a2 <- lapply(strsplit(as.character(tmp[, 3]), ", "), as.numeric)
+    
+    # append a position vector
+    tmp.a1[[length(tmp.a1) + 1]] <- seq_along(tmp.a1[[1]])
+    tmp.a2[[length(tmp.a2) + 1]] <- seq_along(tmp.a2[[1]])
+    
+    # create a long dataframe of the above data for each adapter, and rbind
+    # both together
+    a1 <- data.frame(adapter = "adapter 1", do.call(cbind, tmp.a1))
+    colnames(a1)[2:6] <- c(as.character(tmp[, 1]), "position")
+    a2 <- data.frame(adapter = "adapter 2", do.call(cbind, tmp.a2))
+    colnames(a2)[2:6] <- c(as.character(tmp[, 1]), "position")
+    rbind(a1, a2)
+})
+
+d.scythe <- melt(d.scythe, id.vars = c("adapter", "position"))
+
+p <- ggplot(d.scythe) + geom_bar(aes(x = position, y = value, fill = adapter), 
+    position = "dodge", stat = "identity")
+p <- p + scale_y_continuous("count")
+p
+```
+
+![plot of chunk remove-contaminant-col](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/remove-contaminant-col.png) 
+
+
+Now we can look at how many reads Scythe found to be contaminated:
+
+
+
+```r
+
+d.scythe.trimmed <- melt(d[, c("file", "total", "uncontaminated")], 
+    id.vars = c("file"))
+
+p <- ggplot(d.scythe.trimmed) + geom_bar(aes(x = file, y = value, 
+    fill = variable))
+p <- p + scale_y_continuous("count")
+p
+```
+
+![plot of chunk unnamed-chunk-1](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/unnamed-chunk-1.png) 
+
+
+And how many reads Sickle trimmed:
+
+
+
+```r
+
+d.sickle <- melt(d[, c("file", "kept", "discarded")], id.vars = c("file"))
+
+p <- ggplot(d.sickle) + geom_bar(aes(x = file, y = value, fill = variable))
+p <- p + scale_y_continuous("count")
+p
+```
+
+![plot of chunk unnamed-chunk-2](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/unnamed-chunk-2.png) 
+
+
+## Post-Processed Quality Reports
+
+
+
+```r
+
+processed.fastq.files <- list.files("data/improved-reads", pattern = ".*\\final.fastq", 
+    full.names = TRUE)
+names(processed.fastq.files) <- basename(processed.fastq.files)
+processed.fastq.summaries <- mclapply(processed.fastq.files, readSeqFile)
+```
+
+
+
+
+### Base Quality
+
+
+
+```r
+
+qualPlot(processed.fastq.summaries)
+```
+
+```
+## Error: A list pased into qualPlot must have named elements.
+```
+
+
+
+
+### Base Frequency
+
+
+
+```r
+
+basePlot(processed.fastq.summaries)
+```
+
+```
+## Error: list 'x' must have named elements.
+```
+
+
+
+
+### K-mer Contaminant Plots
+
+
+
+```r
+
+kmerKLPlot(processed.fastq.summaries)
+```
+
+```
+## Error: list 'x' must have named elements.
+```
+
+
+
+
+### Entropy Contaminant Plots
+
+
+
+```r
+
+kmerEntropyPlot(processed.fastq.summaries)
+```
+
+```
+## Error: list 'x' must have named elements.
+```
+
+
+
 

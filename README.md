@@ -81,3 +81,14 @@ script to allow this to be parallelizable.
 
 I am using `-N1` with `gsnap`, which allows for novel
 splicing. `gsnap` also allows for known splicing junctions to be used.
+
+## Converting SAM files to BAM files
+
+Another task for `xargs`. As before, I use basename to keep just the
+unique file name as a key, and run `samtools` with the correct
+directory and extension. This allows me to change the extension too.
+
+    find data/alignments/ -name "*sam" | xargs -n1 -I{} basename {} .sam | xargs -n1 -I{} -P4 samtools view -b -S -o data/alignments/{}.bam data/alignments/{}.sam
+
+
+

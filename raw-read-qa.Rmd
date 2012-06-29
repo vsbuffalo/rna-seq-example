@@ -1,4 +1,4 @@
-# Raw Read Quality Assessment
+# Raw and Processed Read Quality Assessment
 
 It's extremely important to do quality assessment and improvement
 steps before working with sequencing data. I highly recommend this one

@@ -1,4 +1,4 @@
-# Raw Read Quality Assessment
+# Raw and Processed Read Quality Assessment
 
 It's extremely important to do quality assessment and improvement
 steps before working with sequencing data. I highly recommend this one
@@ -15,7 +15,7 @@ before/after quality improvement software diagnostics.
 
 
 ```r
-opts_chunk$set(fig.width = 7, fig.height = 7, cache = TRUE)
+opts_chunk$set(fig.width = 7, fig.height = 7, cache = FALSE)
 opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ```
 
@@ -54,11 +54,6 @@ raw.fastq.summaries <- mclapply(raw.fastq.files, readSeqFile)
 # axis
 raw.fastq.summaries[["random"]] <- readSeqFile(system.file("extdata", 
     "random.fasta", package = "qrqc"), type = "fasta", hash.prop = 1)
-```
-
-```
-## Warning: Some k-mer counts are infinite, meaning there was occurence of a
-## k-mer over the maximum double size.
 ```
 
 
@@ -123,10 +118,22 @@ kmerKLPlot(raw.fastq.summaries)
 ```
 
 ```
-## Error: replacement has 1 rows, data has 0
+## Warning: Stacking not well defined when ymin != 0
 ```
 
+```
+## Warning: Stacking not well defined when ymin != 0
+```
 
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+```
+## Warning: Stacking not well defined when ymin != 0
+```
+
+![plot of chunk raw-kmer-kl](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/raw-kmer-kl.png) 
 
 
 ### Entropy Contaminant Plots
@@ -236,14 +243,6 @@ p
 ## Post-Processed Quality Reports
 
 
-
-```r
-o
-```
-
-```
-## Error: object 'o' not found
-```
 
 ```r
 processed.fastq.files <- list.files("data/improved-reads", pattern = ".*final\\.fastq", 

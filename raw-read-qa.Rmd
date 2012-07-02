@@ -13,7 +13,7 @@ generally are working well with a particular dataset.
 before/after quality improvement software diagnostics.
 
 ```{r setup}
-opts_chunk$set(fig.width=7, fig.height=7, cache=TRUE)
+opts_chunk$set(fig.width=7, fig.height=7, cache=FALSE)
 opts_knit$set(base.url="https://github.com/vsbuffalo/rna-seq-example/raw/master/")
 ````
 
@@ -148,7 +148,6 @@ p
 ## Post-Processed Quality Reports
 
 ```{r summarize-trimmed-reads}
-o
 processed.fastq.files <- list.files("data/improved-reads", pattern=".*final\\.fastq", full.names=TRUE)
 names(processed.fastq.files) <- basename(processed.fastq.files)
 

@@ -1,13 +1,20 @@
 # Aligned Read Processing and Counting
 
-```{r setup}
-opts_chunk$set(fig.width=7, fig.height=7, cache=TRUE)
-opts_knit$set(base.url="https://github.com/vsbuffalo/rna-seq-example/raw/master/")
-````
+
+
+```r
+opts_chunk$set(fig.width = 7, fig.height = 7, cache = TRUE)
+opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/master/")
+```
+
+
+
 
 ## Load Required Packages and Set Number of Cores to Use
 
-```{r load-packages}
+
+
+```r
 library(ggplot2)
 library(multicore)
 
@@ -18,8 +25,11 @@ library(GenomicFeatures)
 library(org.At.tair.db)
 library(TxDb.Athaliana.BioMart.plantsmart12)
 
-options(mc.cores=4)
-````
+options(mc.cores = 4)
+```
+
+
+
 
 
 ## Build Exons By Gene `GRangesList` Object from `transcriptDb` Object
@@ -30,11 +40,20 @@ group exons by gene. We could also specify `by=tx` to do the analysis
 at the transcript level. It's not a bad idea to check how many
 elements (genes) this creates:
 
-```{r txdb}
-    txdb <- TxDb.Athaliana.BioMart.plantsmart12
-    at.exons <- exonsBy(txdb, "gene")
-    length(at.exons)
-````
+
+
+```r
+txdb <- TxDb.Athaliana.BioMart.plantsmart12
+at.exons <- exonsBy(txdb, "gene")
+length(at.exons)
+```
+
+```
+## [1] 33602
+```
+
+
+
 
 The `show` method for `txdb` reveals important data about the database
 versions, curation dates, etc, all vital for reproducibility.
@@ -47,31 +66,55 @@ worth discussing: they have different sequence naming schemes.
 Here is an illustration of the problem (we read in an alignment file
 that we then discard to save memory):
 
-```{r diff-seqlevels}
+
+
+```r
 
 aln <- readBamGappedAlignments("data/alignments/SRR070571-trimmed-final.bam")
 
 seqlevels(aln)
+```
+
+```
+## [1] "Chr1"         "Chr2"         "Chr3"         "Chr4"        
+## [5] "Chr5"         "chloroplast"  "mitochondria"
+```
+
+```r
 
 seqlevels(at.exons)
+```
 
-````
+```
+## [1] "3"  "4"  "1"  "5"  "2"  "Pt" "Mt"
+```
+
+
+
 
 These are differently named (even though they correspond to the same
 chromosomes), so we must rename them. We could adjust manually with
 `seqlevels(at.exons) <- # blah, blah, blah`, but it's preferred that
 we use `renameSeqlevels`:
 
-```{r rename-seqlevels}
 
-new.names <- c("1"="Chr1", "2"="Chr2", "3"="Chr3", 
-               "4"="Chr4", "5"="Chr5", "Mt"="mitochondria",
-               "Pt"="chloroplast")
+
+```r
+
+new.names <- c(`1` = "Chr1", `2` = "Chr2", `3` = "Chr3", `4` = "Chr4", 
+    `5` = "Chr5", Mt = "mitochondria", Pt = "chloroplast")
 
 
 at.exons <- renameSeqlevels(at.exons, new.names)
 setdiff(seqlevels(aln), seqlevels(at.exons))
-````
+```
+
+```
+## character(0)
+```
+
+
+
 
 This corrects this issue.
 
@@ -99,44 +142,56 @@ intron lengths. `mclapply` doesn't work on these objects
 (`GRangesList` are not list!), so we have to use the `foreach` and
 `doMC` packages.
 
-```{r gather-gene-lengths}
-registerDoMC(cores=4)
+
+
+```r
+registerDoMC(cores = 4)
 # intron lengths
-at.intron.lengths <- foreach(x=at.exons, .packages="GenomicRanges") %dopar%  width(gaps(x, start=min(start(x))))
+at.intron.lengths <- foreach(x = at.exons, .packages = "GenomicRanges") %dopar% 
+    width(gaps(x, start = min(start(x))))
 
 # we use summary to build a vector of cut points
 read.length <- 42
-cut.points <- sort(c(0, read.length, summary(unlist(at.intron.lengths)), Inf))
+cut.points <- sort(c(0, read.length, summary(unlist(at.intron.lengths)), 
+    Inf))
+```
 
-````
+
+
 
 Now, we get to gathering statistic and count data.
 
-```{r aln-functions}
+
+
+```r
 
 getAlignmentStatistics <- function(aln) {
-  ngap <- table(ngap(aln))
-  width <- table(cut(width(aln), cut.points))
-  mapq <- table(elementMetadata(aln)$mapq)
-  xq <- table(elementMetadata(aln)$XQ)
-  list(ngap, mapq, width, xq)
+    ngap <- table(ngap(aln))
+    width <- table(cut(width(aln), cut.points))
+    mapq <- table(elementMetadata(aln)$mapq)
+    xq <- table(elementMetadata(aln)$XQ)
+    list(ngap, mapq, width, xq)
 }
 
-bam.files <- list.files("data/alignments/", pattern=".*\\.bam", full.names=TRUE)
+bam.files <- list.files("data/alignments/", pattern = ".*\\.bam", 
+    full.names = TRUE)
 FORCE <- TRUE
 aln.results.file <- "data/aln-results.Rdata"
 if (!file.exists(aln.results.file) || TRUE) {
-  aln.results <- mclapply(bam.files, function(f) {
-    aln = readBamGappedAlignments(f, param=ScanBamParam(what=c("mapq", "qname"), tag=c("NH", "XQ")))
-    counts <- summarizeOverlaps(at.exons, aln, ignore.strand=TRUE)
-    list(counts=counts, info=getAlignmentStatistics(aln))
-  })
-  save(aln.results, file=aln.results.file)
+    aln.results <- mclapply(bam.files, function(f) {
+        aln = readBamGappedAlignments(f, param = ScanBamParam(what = c("mapq", 
+            "qname"), tag = c("NH", "XQ")))
+        counts <- summarizeOverlaps(at.exons, aln, ignore.strand = TRUE)
+        list(counts = counts, info = getAlignmentStatistics(aln))
+    })
+    save(aln.results, file = aln.results.file)
 } else {
-  load(aln.results.file)
+    load(aln.results.file)
 }
+```
 
-````
+
+
 
 `aln.results` is a list of lists: the first level deep corresponds to
 samples, the second level information per experiment (the first, a
@@ -144,11 +199,14 @@ samples, the second level information per experiment (the first, a
 another list of data from `getAlignmentStatistics`). We'll need to
 seperately pull these elements.
 
-```{r}
 
-aln.counts <- lapply(aln.results, function(x) assays(x[['counts']])$counts)
 
-names(aln.counts) <- names(aln.results) <- gsub("([A-Z0-9]+)-.*", "\\1", basename(bam.files))
+```r
+
+aln.counts <- lapply(aln.results, function(x) assays(x[["counts"]])$counts)
+
+names(aln.counts) <- names(aln.results) <- gsub("([A-Z0-9]+)-.*", 
+    "\\1", basename(bam.files))
 
 raw.counts <- do.call(cbind, aln.counts)
 colnames(raw.counts) <- names(aln.results)
@@ -157,16 +215,19 @@ colnames(raw.counts) <- names(aln.results)
 # after rbind
 info.fields <- c("ngap", "mapq", "width", "xq")
 aln.info <- mapply(function(x, varn) {
-  tmp <- mapply(function(y, n) {
-    ll <- y$info[[x]]
-    out <- data.frame(ll, sample=n, var=varn)
-    colnames(out)[1:2] <- c("value", "frequency")
-    out
-  }, aln.results, names(aln.results), SIMPLIFY=FALSE)
-  tmp
-}, seq_along(info.fields), info.fields, SIMPLIFY=FALSE)
+    tmp <- mapply(function(y, n) {
+        ll <- y$info[[x]]
+        out <- data.frame(ll, sample = n, var = varn)
+        colnames(out)[1:2] <- c("value", "frequency")
+        out
+    }, aln.results, names(aln.results), SIMPLIFY = FALSE)
+    tmp
+}, seq_along(info.fields), info.fields, SIMPLIFY = FALSE)
 names(aln.info) <- info.fields
-````
+```
+
+
+
 
 Note that we added the measure name (width, XQ, etc) and the sample
 name for easier plotting. 
@@ -175,40 +236,91 @@ Alignment width distribution is important: it can tell us whether our
 alignments are wider than we expect (maybe too many longer than the
 upper quartile for intron length), or whether there's a mapping width by sample effect (which would confound count data):
 
-```{r width-plot}
 
-ggplot(do.call(rbind, aln.info[['width']])) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge") +  opts(axis.text.x=theme_text(angle=45))
 
-````
+```r
+
+ggplot(do.call(rbind, aln.info[["width"]])) + geom_bar(aes(x = value, 
+    y = frequency, fill = sample), position = "dodge") + opts(axis.text.x = theme_text(angle = 45))
+```
+
+![plot of chunk width-plot](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/width-plot.png) 
+
 
 Nothing looks too out of the ordinary here. What about mapping quality?
 
-```{r mapping-qual-plot}
+
+
+```r
 d.mapq <- local({
-  tmp <- do.call(rbind, aln.info[['mapq']])
-  within(tmp, {
-    value <- as.integer(as.character(value))
-  })
+    tmp <- do.call(rbind, aln.info[["mapq"]])
+    within(tmp, {
+        value <- as.integer(as.character(value))
+    })
 })
-p <- gplot(d.mapq) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge", stat="identity")
+p <- gplot(d.mapq) + geom_bar(aes(x = value, y = frequency, fill = sample), 
+    position = "dodge", stat = "identity")
+```
+
+```
+## Error: could not find function "gplot"
+```
+
+```r
 p + scale_x_continous("mapping quality")
-````
+```
+
+```
+## Error: object 'p' not found
+```
+
+
+
 
 So we see there are a lot of low-quality mapped reads. We can get a
 clearer photo by subsetting:
 
-```{r mapping-bad-qual-plot}
-p <- gplot(subset(d.mapq, value <= 10)) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge", stat="identity")
+
+
+```r
+p <- gplot(subset(d.mapq, value <= 10)) + geom_bar(aes(x = value, 
+    y = frequency, fill = sample), position = "dodge", stat = "identity")
+```
+
+```
+## Error: could not find function "gplot"
+```
+
+```r
 p + scale_x_continuous("mapping quality")
-````
+```
+
+```
+## Error: object 'p' not found
+```
+
+
+
 
 Note the number of reads that are non-unique:
 
-```{r nonunique}
+
+
+```r
 
 d.mapq[d.mapq$value == 0, ]
+```
 
-````
+```
+##             value frequency    sample  var
+## SRR070570.1     0   7268457 SRR070570 mapq
+## SRR070571.1     0   5694235 SRR070571 mapq
+## SRR070572.1     0   1361640 SRR070572 mapq
+## SRR070573.1     0   1257715 SRR070573 mapq
+```
+
+
+
 
 And that this differs by sample quite a bit. A read recovery/rescue
 option may be useful here. 
@@ -217,6 +329,11 @@ Normally, I would do more diagnostics, but `qrqc` (or another package)
 will incorporate these soon. For now, I output the raw counts table to
 be used in the statistical side of things:
 
-```{r write-table}
-write.table(raw.counts, file="results/raw-counts.txt", quote=FALSE)
-````
+
+
+```r
+write.table(raw.counts, file = "results/raw-counts.txt", quote = FALSE)
+```
+
+
+

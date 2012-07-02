@@ -258,20 +258,13 @@ d.mapq <- local({
         value <- as.integer(as.character(value))
     })
 })
-p <- gplot(d.mapq) + geom_bar(aes(x = value, y = frequency, fill = sample), 
+p <- ggplot(d.mapq) + geom_bar(aes(x = value, y = frequency, fill = sample), 
     position = "dodge", stat = "identity")
-```
-
-```
-## Error: could not find function "gplot"
-```
-
-```r
 p + scale_x_continous("mapping quality")
 ```
 
 ```
-## Error: object 'p' not found
+## Error: could not find function "scale_x_continous"
 ```
 
 
@@ -283,23 +276,12 @@ clearer photo by subsetting:
 
 
 ```r
-p <- gplot(subset(d.mapq, value <= 10)) + geom_bar(aes(x = value, 
+p <- ggplot(subset(d.mapq, value <= 10)) + geom_bar(aes(x = value, 
     y = frequency, fill = sample), position = "dodge", stat = "identity")
-```
-
-```
-## Error: could not find function "gplot"
-```
-
-```r
 p + scale_x_continuous("mapping quality")
 ```
 
-```
-## Error: object 'p' not found
-```
-
-
+![plot of chunk mapping-bad-qual-plot](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/mapping-bad-qual-plot.png) 
 
 
 Note the number of reads that are non-unique:

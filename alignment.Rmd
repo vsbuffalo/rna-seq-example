@@ -190,7 +190,7 @@ d.mapq <- local({
     value <- as.integer(as.character(value))
   })
 })
-p <- gplot(d.mapq) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge", stat="identity")
+p <- ggplot(d.mapq) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge", stat="identity")
 p + scale_x_continous("mapping quality")
 ````
 
@@ -198,7 +198,7 @@ So we see there are a lot of low-quality mapped reads. We can get a
 clearer photo by subsetting:
 
 ```{r mapping-bad-qual-plot}
-p <- gplot(subset(d.mapq, value <= 10)) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge", stat="identity")
+p <- ggplot(subset(d.mapq, value <= 10)) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge", stat="identity")
 p + scale_x_continuous("mapping quality")
 ````
 

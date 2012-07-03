@@ -329,14 +329,10 @@ aln.rates <- subset(d.mapq, var == "mapq" & value >= 30)
 aln.rates$treatment <- ifelse(aln.rates$sample %in% c("SRR070570", 
     "SRR070571"), "wt", "mutant")
 
-ggplot(subset(d.mapq, var == "mapq" & value >= 30)) + geom_bar(aes(x = sample, 
-    y = frequency, fill = treatment), stat = "identity")
+ggplot(aln.rates) + geom_bar(aes(x = sample, y = frequency, fill = treatment), 
+    stat = "identity")
 ```
 
-```
-## Error: object 'treatment' not found
-```
-
-
+![plot of chunk mapping-rates](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/mapping-rates.png) 
 
 

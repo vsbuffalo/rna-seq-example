@@ -1,0 +1,39 @@
+# Differential Expression Statistics
+
+```{r setup}
+opts_chunk$set(fig.width=7, fig.height=7, cache=TRUE)
+opts_knit$set(base.url="https://github.com/vsbuffalo/rna-seq-example/raw/master/")
+````
+
+## Load Required Packages
+
+```{r load-packages}
+library(ggplot2)
+library(DESeq)
+````
+## Design
+
+Normally, I extract the design from the file names, but in this case,
+the file names are just SRA identifiers, so this is done manually:
+
+```{r design}
+
+design <- data.frame(file=c("SRR070570", "SRR070571", "SRR070572", "SRR070573"), 
+                     treatment=c("wildtype", "wildtype", "mutant", "mutant"))
+
+````
+
+## Read in Count Data and Do EDA
+
+```{r count-data} 
+
+d <- read.table("results/raw-counts.txt", header=TRUE, row.names=1)
+
+````
+
+```{r totals}
+
+colSums(d)
+
+````
+

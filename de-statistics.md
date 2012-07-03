@@ -1,74 +1,110 @@
 # Differential Expression Statistics
 
-```{r setup}
-opts_chunk$set(fig.width=7, fig.height=7, cache=TRUE)
-opts_knit$set(base.url="https://github.com/vsbuffalo/rna-seq-example/raw/master/")
-````
+
+
+```r
+opts_chunk$set(fig.width = 7, fig.height = 7, cache = TRUE)
+opts_knit$set(base.url = "https://github.com/vsbuffalo/rna-seq-example/raw/master/")
+```
+
+
+
 
 ## Load Required Packages
 
-```{r load-packages}
+
+
+```r
 library(ggplot2)
 library(DESeq)
 library(IRanges)
-````
+```
+
+
+
 ## Design
 
 Normally, I extract the design from the file names, but in this case,
 the file names are just SRA identifiers, so this is done manually:
 
-```{r design}
 
-design <- data.frame(file=c("SRR070570", "SRR070571", "SRR070572", "SRR070573"), 
-                     treatment=c("wildtype", "wildtype", "mutant", "mutant"), 
-                     stringsAsFactors=FALSE)
 
-````
+```r
+
+design <- data.frame(file = c("SRR070570", "SRR070571", "SRR070572", 
+    "SRR070573"), treatment = c("wildtype", "wildtype", "mutant", "mutant"), 
+    stringsAsFactors = FALSE)
+```
+
+
+
 
 ## Read in Count Data and Do EDA
 
-```{r count-data} 
 
-d <- read.table("results/raw-counts.txt", header=TRUE, row.names=1)
 
-````
+```r
 
-```{r totals}
+d <- read.table("results/raw-counts.txt", header = TRUE, row.names = 1)
+```
+
+
+
+
+
+
+```r
 
 colSums(d)
+```
 
-````
+```
+## SRR070570 SRR070571 SRR070572 SRR070573 
+##  11728960  11585090  13162350  12267736 
+```
+
+
+
 
 ### MDS Plot
 
 An MDS plot is a great diagnostic - both on raw counts and normalized
 and variance stabilized counts. 
 
-```{r mdsplot}
-mdsPlot <- function(counts, conds, useVST=FALSE) {
-  if (useVST) {
-    cds <- newCountDataSet(counts, conds)
-    cds <- estimateSizeFactors(cds)
-    cds <- estimateDispersions(cds, method="blind")
-    counts <- getVarianceStabilizedData(cds)
-  }
+
+
+```r
+mdsPlot <- function(counts, conds, useVST = FALSE) {
+    if (useVST) {
+        cds <- newCountDataSet(counts, conds)
+        cds <- estimateSizeFactors(cds)
+        cds <- estimateDispersions(cds, method = "blind")
+        counts <- getVarianceStabilizedData(cds)
+    }
     d <- dist(t(counts))
-
-  mds.fit <- cmdscale(d, eig=TRUE, k=2)
-
-  mds.d <- data.frame(x1=mds.fit$points[, 1],
-                      x2=mds.fit$points[, 2],
-                      labels=colnames(counts))
-
-  mds.d$treatment <- as.factor(conds)
-
-  ggplot(mds.d) + geom_text(aes(x=x1, y=x2, label=labels, colour=treatment))
+    
+    mds.fit <- cmdscale(d, eig = TRUE, k = 2)
+    
+    mds.d <- data.frame(x1 = mds.fit$points[, 1], x2 = mds.fit$points[, 2], 
+        labels = colnames(counts))
+    
+    mds.d$treatment <- as.factor(conds)
+    
+    ggplot(mds.d) + geom_text(aes(x = x1, y = x2, label = labels, colour = treatment))
 }
 
-mdsPlot(d, design$treatment[match(colnames(d), design$file)]) + opts(title="MDS on Raw Counts")
-mdsPlot(d, design$treatment[match(colnames(d), design$file)], useVST=TRUE) + opts(title="MDS on Normalized and VST Counts")
+mdsPlot(d, design$treatment[match(colnames(d), design$file)]) + opts(title = "MDS on Raw Counts")
+```
 
-````
+![plot of chunk mdsplot](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/mdsplot1.png) 
+
+```r
+mdsPlot(d, design$treatment[match(colnames(d), design$file)], useVST = TRUE) + 
+    opts(title = "MDS on Normalized and VST Counts")
+```
+
+![plot of chunk mdsplot](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/mdsplot2.png) 
+
 
 What do we look for in MDS plots? Well, as with many diagnostic plots
 it takes practice and is subjective. Personally, I like to see that:
@@ -113,11 +149,20 @@ thus the scaling factor.
 To illustrate this, let's look at the top 2% of highly expressed genes
 in `SRR070570`:
 
-```{r highly-expressed-genes}
 
-q98 <- quantile(d$SRR070570, probs=0.98)
+
+```r
+
+q98 <- quantile(d$SRR070570, probs = 0.98)
 sum(d$SRR070570[d$SRR070570 >= q98])/sum(d$SRR070570)
-````
+```
+
+```
+## [1] 0.899
+```
+
+
+
 
 So the top 2% of gene's counts make up nearly 90% of total lane
 counts. 
@@ -131,25 +176,38 @@ directly in fitting process.
 An MA-plot can be used (with caution - this is not a microarray
 analysis!) to look at how things are distributed.
 
-```{r ma-plot}
+
+
+```r
 
 makeMAData <- function(d, conds, a.name, b.name) {
-  samples.a <- d[, conds == a.name]
-  samples.b <- d[, conds == b.name]
-
-  lfc <- log2(rowMeans(samples.a)/rowMeans(samples.b))
-  all.zero <- rowMeans(samples.a) == 0 | rowMeans(samples.b) == 0
-  lfc[all.zero] <- (log2(rowMeans(samples.a+1)/rowMeans(samples.b+1)))[all.zero]
-  mean.exp <- rowMeans(d)
-  mean.exp[all.zero] <- 0.5
-  ma.d <- data.frame(lfc, mean.exp, adjusted=all.zero)
-  ma.d
+    samples.a <- d[, conds == a.name]
+    samples.b <- d[, conds == b.name]
+    
+    lfc <- log2(rowMeans(samples.a)/rowMeans(samples.b))
+    all.zero <- rowMeans(samples.a) == 0 | rowMeans(samples.b) == 0
+    lfc[all.zero] <- (log2(rowMeans(samples.a + 1)/rowMeans(samples.b + 1)))[all.zero]
+    mean.exp <- rowMeans(d)
+    mean.exp[all.zero] <- 0.5
+    ma.d <- data.frame(lfc, mean.exp, adjusted = all.zero)
+    ma.d
 }
-ma.d <- makeMAData(d, design$treatment[match(colnames(d), design$file)], "mutant", "wildtype")
-p <- ggplot(ma.d) + geom_point(aes(x=mean.exp, y=lfc, color=adjusted), size=0.8) + scale_x_log10("mean expression") + scale_y_continuous("log2 fold change (mutant/wildtype)")
-p <- p + geom_smooth(aes(x=mean.exp, y=lfc), se=FALSE)
+ma.d <- makeMAData(d, design$treatment[match(colnames(d), design$file)], 
+    "mutant", "wildtype")
+p <- ggplot(ma.d) + geom_point(aes(x = mean.exp, y = lfc, color = adjusted), 
+    size = 0.8) + scale_x_log10("mean expression") + scale_y_continuous("log2 fold change (mutant/wildtype)")
+p <- p + geom_smooth(aes(x = mean.exp, y = lfc), se = FALSE)
 p
-````
+```
+
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+![plot of chunk ma-plot](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/ma-plot.png) 
+
 
 We *usually* operator under the null hypothesis that most genes are
 not differentially expressed (although, depending on what you're
@@ -160,22 +218,40 @@ We can see how much DESeq's normalization procedure would change
 things by running the first few steps of a DE analysis and outputing
 normalized counts:
 
-```{r deseq-norm}
+
+
+```r
 
 cds <- newCountDataSet(d, design$treatment[match(colnames(d), design$file)])
 cds <- estimateSizeFactors(cds)
-norm.counts <- counts(cds, normalized=TRUE)
+norm.counts <- counts(cds, normalized = TRUE)
 ma.d$title <- "Before Normalization"
-ma.d.norm <- makeMAData(norm.counts, design$treatment[match(colnames(norm.counts), design$file)], "mutant", "wildtype")
+ma.d.norm <- makeMAData(norm.counts, design$treatment[match(colnames(norm.counts), 
+    design$file)], "mutant", "wildtype")
 ma.d.norm$title <- "After Normalization"
 
 ma.d.all <- rbind(ma.d, ma.d.norm)
 
-p <- ggplot(ma.d.all) + geom_point(aes(x=mean.exp, y=lfc, color=adjusted), size=0.8) + scale_x_log10("mean expression") + scale_y_continuous("log2 fold change (mutant/wildtype)")
-p <- p + geom_smooth(aes(x=mean.exp, y=lfc), se=FALSE)
-p + facet_wrap(~ title)
+p <- ggplot(ma.d.all) + geom_point(aes(x = mean.exp, y = lfc, color = adjusted), 
+    size = 0.8) + scale_x_log10("mean expression") + scale_y_continuous("log2 fold change (mutant/wildtype)")
+p <- p + geom_smooth(aes(x = mean.exp, y = lfc), se = FALSE)
+p + facet_wrap(~title)
+```
 
-````
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+```
+## geom_smooth: method="auto" and size of largest group is >=1000, so using
+## gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the
+## smoothing method.
+```
+
+![plot of chunk deseq-norm](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/deseq-norm.png) 
+
 
 We can see (at least according to DESeq's normalization scheme) that
 not much normalization was needed.
@@ -192,28 +268,40 @@ individuals). Technical replicates often do satisfy the Poisson model
 (since the source of error is not heterogeneity, but rather techincal
 noise). 
 
-```{r mean-var}
+
+
+```r
 
 mean.wt <- rowMeans(d[, design$file[design$treatment == "wildtype"]])
 mean.mut <- rowMeans(d[, design$file[design$treatment == "mutant"]])
-var.wt <- apply(d[, design$file[design$treatment == "wildtype"]], 1, var)
-var.mut <- apply(d[, design$file[design$treatment == "mutant"]], 1, var)
+var.wt <- apply(d[, design$file[design$treatment == "wildtype"]], 
+    1, var)
+var.mut <- apply(d[, design$file[design$treatment == "mutant"]], 
+    1, var)
 
-mv.d <- data.frame(mean=c(mean.wt, mean.mut), 
-                   variance=c(var.wt, var.mut),
-                   sample=as.vector(Rle(c("wildtype", "mutant"), 
-                          c(nrow(d), nrow(d)))))
+mv.d <- data.frame(mean = c(mean.wt, mean.mut), variance = c(var.wt, 
+    var.mut), sample = as.vector(Rle(c("wildtype", "mutant"), c(nrow(d), nrow(d)))))
 
-ggplot(mv.d) + geom_point(aes(x=mean, y=variance, color=sample), size=1) + scale_x_log10() + scale_y_log10() + geom_abline(slope=1, intercept=0, color="blue")
-````
+ggplot(mv.d) + geom_point(aes(x = mean, y = variance, color = sample), 
+    size = 1) + scale_x_log10() + scale_y_log10() + geom_abline(slope = 1, intercept = 0, 
+    color = "blue")
+```
+
+![plot of chunk mean-var](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/mean-var.png) 
+
 
 ## Differential Expressio Analysis
 
 We can conduct an initial differential expression analysis with
 `estimateDispersions` and `nbinomTest`:
 
-```{r de-analysis}
+
+
+```r
 
 cds <- estimateDispersions(cds)
 res <- nbinomTest(cds, "mutant", "wildtype")
-````
+```
+
+
+

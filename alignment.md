@@ -260,14 +260,10 @@ d.mapq <- local({
 })
 p <- ggplot(d.mapq) + geom_bar(aes(x = value, y = frequency, fill = sample), 
     position = "dodge", stat = "identity")
-p + scale_x_continous("mapping quality")
+p + scale_x_continuous("mapping quality")
 ```
 
-```
-## Error: could not find function "scale_x_continous"
-```
-
-
+![plot of chunk mapping-qual-plot](https://github.com/vsbuffalo/rna-seq-example/raw/master/figure/mapping-qual-plot.png) 
 
 
 So we see there are a lot of low-quality mapped reads. We can get a
@@ -316,6 +312,31 @@ be used in the statistical side of things:
 ```r
 write.table(raw.counts, file = "results/raw-counts.txt", quote = FALSE)
 ```
+
+
+
+
+### Good Alignments by Sample
+
+How many *good* alignments do we have (mapping quality above or equal
+to 30) do we have?
+
+
+
+```r
+
+aln.rates <- subset(d.mapq, var == "mapq" & value >= 30)
+aln.rates$treatment <- ifelse(aln.rates$sample %in% c("SRR070570", 
+    "SRR070571"), "wt", "mutant")
+
+ggplot(subset(d.mapq, var == "mapq" & value >= 30)) + geom_bar(aes(x = sample, 
+    y = frequency, fill = treatment), stat = "identity")
+```
+
+```
+## Error: object 'treatment' not found
+```
+
 
 
 

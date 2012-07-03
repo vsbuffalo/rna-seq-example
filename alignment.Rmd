@@ -191,7 +191,7 @@ d.mapq <- local({
   })
 })
 p <- ggplot(d.mapq) + geom_bar(aes(x=value, y=frequency, fill=sample), position="dodge", stat="identity")
-p + scale_x_continous("mapping quality")
+p + scale_x_continuous("mapping quality")
 ````
 
 So we see there are a lot of low-quality mapped reads. We can get a
@@ -220,3 +220,18 @@ be used in the statistical side of things:
 ```{r write-table}
 write.table(raw.counts, file="results/raw-counts.txt", quote=FALSE)
 ````
+
+### Good Alignments by Sample
+
+How many *good* alignments do we have (mapping quality above or equal
+to 30) do we have?
+
+```{r mapping-rates}
+
+aln.rates <- subset(d.mapq, var == "mapq" & value >= 30)
+aln.rates$treatment <- ifelse(aln.rates$sample %in% c("SRR070570", "SRR070571"), "wt", "mutant")
+
+ggplot(subset(d.mapq, var == "mapq" & value >= 30)) + geom_bar(aes(x=sample, y=frequency, fill=treatment), stat="identity")
+
+````
+
